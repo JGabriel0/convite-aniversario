@@ -2,16 +2,32 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import "./App.css";
 
 /* ─── flower SVG generator ─────────────────────────────────── */
-function makeSVG(W, H) {
+function makeSVG(W: number, H: number) {
   const bl = ["#90c8f0", "#b8ddf8", "#d0ecff", "#6aaee0", "#3a8ac8"];
   const si = ["#c0cdd8", "#d8e4ec", "#b0c0cc", "#e8f0f5", "#a0b4c4"];
   const gr = ["#8aaa94", "#a0bc9e", "#6a8c74", "#b4c8b0", "#7a9e84"];
   const lb = ["#bcd8f0", "#d4eafc", "#a8ccec"];
 
-  const petal = (cx, cy, rx, ry, angle, fill, op = 0.82) =>
+  const petal = (
+    cx: number,
+    cy: number,
+    rx: number,
+    ry: number,
+    angle: number,
+    fill: string,
+    op: number = 0.82,
+  ): string =>
     `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" opacity="${op}" transform="rotate(${angle},${cx},${cy})"/>`;
 
-  const rose = (cx, cy, sz, c1, c2, c3, rot) => {
+  const rose = (
+    cx: number,
+    cy: number,
+    sz: number,
+    c1: string,
+    c2: string,
+    c3: string,
+    rot: number,
+  ): string => {
     const R = sz * 0.4;
     let o = "";
     for (let i = 0; i < 8; i++) {
@@ -33,7 +49,14 @@ function makeSVG(W, H) {
     return o;
   };
 
-  const dahlia = (cx, cy, sz, c1, c2, rot) => {
+  const dahlia = (
+    cx: number,
+    cy: number,
+    sz: number,
+    c1: string,
+    c2: string,
+    rot: number,
+  ): string => {
     let o = "";
     [
       [sz * 0.4, 10, 0],
@@ -60,16 +83,40 @@ function makeSVG(W, H) {
     return o;
   };
 
-  const leaf = (x1, y1, x2, y2, b, c, op = 0.62) => {
+  const leaf = (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    b: number,
+    c: string,
+    op: number = 0.62,
+  ): string => {
     const mx = (x1 + x2) / 2 + b,
       my = (y1 + y2) / 2;
     return `<path d="M${x1},${y1} Q${mx},${my} ${x2},${y2} Q${mx - b * 2},${my} ${x1},${y1}" fill="${c}" opacity="${op}"/>`;
   };
 
-  const stem = (x1, y1, cpx, cpy, x2, y2, c, sw = 1.8) =>
+  const stem = (
+    x1: number,
+    y1: number,
+    cpx: number,
+    cpy: number,
+    x2: number,
+    y2: number,
+    c: string,
+    sw: number = 1.8,
+  ): string =>
     `<path d="M${x1},${y1} Q${cpx},${cpy} ${x2},${y2}" stroke="${c}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`;
 
-  const eucaBranch = (ox, oy, deg, len, lc, sc) => {
+  const eucaBranch = (
+    ox: number,
+    oy: number,
+    deg: number,
+    len: number,
+    lc: string,
+    sc: string,
+  ): string => {
     const rad = (deg * Math.PI) / 180;
     const ex = ox + Math.cos(rad) * len,
       ey = oy + Math.sin(rad) * len;
@@ -91,7 +138,7 @@ function makeSVG(W, H) {
   const maxD = Math.min(W, H) * 0.22;
   const aBase = [12, 25, 38, 52, 66, 78, 18, 45, 60];
 
-  const corner = (ox, oy, flip) => {
+  const corner = (ox: number, oy: number, flip: boolean): string => {
     let g = "";
     aBase.forEach((ba, i) => {
       const deg = flip ? 180 + ba : ba;
@@ -173,7 +220,7 @@ const MSG =
   "Será uma noite inesquecível, cheia de sonhos, sorrisos e emoção. Sua presença tornará tudo ainda mais especial.";
 
 /* ─── FlowerLayer ───────────────────────────────────────────── */
-function FlowerLayer({ w, h }) {
+function FlowerLayer({ w, h }: { w: number; h: number }) {
   if (!w || !h) return null;
   return (
     <div
@@ -183,10 +230,17 @@ function FlowerLayer({ w, h }) {
   );
 }
 
+type Countdown = {
+  d: string;
+  h: string;
+  m: string;
+  s: string;
+};
+
 /* ─── main App ──────────────────────────────────────────────── */
 export function App() {
-  const hostRef = useRef(null);
-  const swRef = useRef(null);
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  const swRef = useRef<HTMLDivElement | null>(null);
 
   /* dimensions */
   const [dim, setDim] = useState({ w: 0, h: 0 });
@@ -196,14 +250,14 @@ export function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [typedText, setTypedText] = useState("");
   const [typingStarted, setTypingStarted] = useState(false);
-  const [countdown, setCountdown] = useState({
+  const [countdown, setCountdown] = useState<Countdown>({
     d: "--",
     h: "--",
     m: "--",
     s: "--",
   });
-  const [giftPicked, setGiftPicked] = useState("");
-  const [giftMsg, setGiftMsg] = useState("");
+  // const [giftPicked, setGiftPicked] = useState("");
+  // const [giftMsg, setGiftMsg] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [plus, setPlus] = useState("Vou sozinha");
@@ -211,12 +265,12 @@ export function App() {
   const [confirmMsg, setConfirmMsg] = useState("");
 
   /* ── measure host ── */
-  const measure = useCallback(() => {
+  const measure = useCallback((): void => {
     if (!hostRef.current) return;
     const el = hostRef.current;
     // sobe na árvore até encontrar altura real
-    let ref = el;
-    let h = 0;
+    let ref: HTMLElement | null = el;
+    let h: number = 0;
     while (ref && h < 200) {
       h = ref.offsetHeight;
       ref = ref.parentElement;
@@ -274,9 +328,9 @@ export function App() {
   useEffect(() => {
     // const tgt = new Date("2026-05-16T19:00:00");
     const tgt = new Date(2026, 4, 16, 19, 0, 0);
-    const fmt = (n) => String(n).padStart(2, "0");
+    const fmt = (n: number) => String(n).padStart(2, "0");
     const tick = () => {
-      let diff = tgt - new Date();
+      let diff = tgt.getTime() - new Date().getTime();
       if (diff < 0) diff = 0;
       setCountdown({
         d: fmt(Math.floor(diff / 86400000)),
@@ -291,7 +345,7 @@ export function App() {
   }, []);
 
   /* ── helpers ── */
-  const scrollTo = (page) => {
+  const scrollTo = (page: number) => {
     const sw = swRef.current;
     if (!sw || !dim.h) return;
     sw.scrollTo({ top: (page - 1) * dim.h, behavior: "smooth" });
@@ -304,7 +358,7 @@ export function App() {
   const handleConfirm = () => {
     if (!name.trim()) return;
     let msg = `${name.trim()}, Fernanda está super feliz em ter você na festa!`;
-    if (giftPicked) msg += ` Obrigada pela ideia: ${giftPicked}!`;
+    // if (giftPicked) msg += ` Obrigada pela ideia: ${giftPicked}!`;
     setConfirmMsg(msg);
     setConfirmed(true);
 
@@ -567,12 +621,14 @@ Acompanhantes: ${plus}`;
               }}
             >
               <div className="cd-wrap">
-                {[
-                  ["d", "dias"],
-                  ["h", "horas"],
-                  ["m", "min"],
-                  ["s", "seg"],
-                ].map(([k, label], i) => (
+                {(
+                  [
+                    ["d", "dias"],
+                    ["h", "horas"],
+                    ["m", "min"],
+                    ["s", "seg"],
+                  ] as [keyof Countdown, string][]
+                ).map(([k, label], i) => (
                   <>
                     {i > 0 && (
                       <div key={`sep-${k}`} className="cd-sep">
@@ -626,7 +682,7 @@ Acompanhantes: ${plus}`;
                 </div>
               ))}
             </div>
-            <div
+            {/* <div
               style={{
                 fontSize: "12px",
                 color: "#6aabdd",
@@ -637,7 +693,7 @@ Acompanhantes: ${plus}`;
               }}
             >
               {giftMsg}
-            </div>
+            </div> */}
           </div>
         </div>
 
