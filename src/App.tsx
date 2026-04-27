@@ -243,6 +243,7 @@ type Countdown = {
 export function App() {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const swRef = useRef<HTMLDivElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   /* dimensions */
   const [dim, setDim] = useState({ w: 0, h: 0 });
@@ -265,6 +266,7 @@ export function App() {
   const [plus, setPlus] = useState("Vou sozinha");
   const [confirmed, setConfirmed] = useState(false);
   const [confirmMsg, setConfirmMsg] = useState("");
+  const [musicPlaying, setMusicPlaying] = useState(false);
 
   /* ── measure host ── */
   const measure = useCallback((): void => {
@@ -345,6 +347,25 @@ export function App() {
     return () => clearInterval(t);
   }, []);
 
+  /* ── YouTube music player ── */
+  const toggleMusic = () => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    if (musicPlaying) {
+      iframe.contentWindow?.postMessage(
+        '{"event":"command","func":"pauseVideo","args":""}',
+        "*",
+      );
+      setMusicPlaying(false);
+    } else {
+      iframe.contentWindow?.postMessage(
+        '{"event":"command","func":"playVideo","args":""}',
+        "*",
+      );
+      setMusicPlaying(true);
+    }
+  };
+
   /* ── helpers ── */
   const scrollTo = (page: number) => {
     const sw = swRef.current;
@@ -354,6 +375,11 @@ export function App() {
 
   const handlePull = () => {
     setTimeout(() => setPulled(true), 460);
+    if (iframeRef.current && !iframeRef.current.src) {
+      iframeRef.current.src =
+        "https://www.youtube.com/embed/2Vv-BfVoq4g?autoplay=1&loop=1&playlist=2Vv-BfVoq4g&start=18&controls=0&playsinline=1&enablejsapi=1";
+      setMusicPlaying(true);
+    }
   };
 
   const handleConfirm = () => {
@@ -768,9 +794,10 @@ Acompanhantes: ${plus}`;
                   marginTop: "10px",
                   textAlign: "center",
                   lineHeight: 1.5,
+                  fontWeight: 600,
                 }}
               >
-                <span style={{ fontWeight: 600 }}>Observação:</span> convidados não devem ir na paleta azul
+                <span style={{ fontWeight: 700 }}>Observação:</span> convidados não devem ir na paleta azul
               </div>
             </div>
           ) : (
@@ -811,6 +838,35 @@ Acompanhantes: ${plus}`;
           )}
         </div>
       </div>
+
+      {/* ── YouTube hidden player ── */}
+      <iframe
+        ref={iframeRef}
+        style={{ display: "none" }}
+        allow="autoplay"
+        title="background music"
+      />
+
+      {/* ── Music toggle button ── */}
+      <button
+        className={`music-btn${musicPlaying ? " playing" : ""}`}
+        onClick={toggleMusic}
+        title={musicPlaying ? "Pausar música" : "Tocar música"}
+      >
+        {musicPlaying ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        )}
+      </button>
 
       {/* ── DOTS ── */}
       <div className="pdots">

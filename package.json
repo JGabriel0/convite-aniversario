@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/JGabriel0/convite-aniversario",
+  "homepage": "https://JGabriel0.github.io/convite-aniversario",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
