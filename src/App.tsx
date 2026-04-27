@@ -205,11 +205,13 @@ function makeSVG(W: number, H: number) {
 //   { icon: "🎀", name: "Vale Presente", price: "qualquer valor" },
 // ];
 const GIFTS = [
-  { icon: "👚", name: "Blusas", desc: "Tamanho M" },
-  { icon: "👖", name: "Calças", desc: "Tamanho 36" },
-  { icon: "👠", name: "Sapatos", desc: "Tamanho 36" },
+  // { icon: "👚", name: "Blusas", desc: "Tamanho M" },
+  // { icon: "👖", name: "Calças", desc: "Tamanho 36" },
+  // { icon: "👠", name: "Sapatos", desc: "Tamanho 36" },
   { icon: "👜", name: "Bolsas", desc: "" },
   { icon: "💍", name: "Acessórios", desc: "" },
+  { icon: "💅", name: "Maquiagens", desc: "" },
+  { icon: "💄", name: "Produtos de Skincare", desc: "" },
 ];
 
 // const MSG =
@@ -315,12 +317,11 @@ export function App() {
   useEffect(() => {
     if (!typingStarted) return;
     let i = 0;
-    setTypedText("");
     const t = setInterval(() => {
-      i++;
+      i = Math.min(i + 2, MSG.length);
       setTypedText(MSG.slice(0, i));
       if (i >= MSG.length) clearInterval(t);
-    }, 28);
+    }, 20);
     return () => clearInterval(t);
   }, [typingStarted]);
 
@@ -372,7 +373,7 @@ Nome: ${name}
 Telefone: ${phone}
 Acompanhantes: ${plus}`;
 
-    const url = `https://wa.me/5585997439296?text=${encodeURIComponent(text)}`;
+    const url = `https://wa.me/558596282079?text=${encodeURIComponent(text)}`;
 
     window.open(url, "_blank");
   };
@@ -759,6 +760,18 @@ Acompanhantes: ${plus}`;
               <button className="cbtn" onClick={handleConfirm}>
                 Confirmar presença ✦
               </button>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#8aabcc",
+                  fontFamily: "Montserrat,sans-serif",
+                  marginTop: "10px",
+                  textAlign: "center",
+                  lineHeight: 1.5,
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>Observação:</span> convidados não devem ir na paleta azul
+              </div>
             </div>
           ) : (
             <div
